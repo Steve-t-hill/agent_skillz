@@ -8,7 +8,7 @@ Use this skill when a user asks to "build a conversational analytics agent", "cr
 ## The Output Artifacts
 When invoked, the agent MUST generate a directory (e.g., `bqca_[name]_agent`) containing the following 4 files:
 
-1.  **`README.md`**: Documentation explaining the agent's purpose, the required Python packages (`google-cloud-geminidataanalytics`, `pyyaml`), and instructions on using the Python scripts.
+1.  **`README.md`**: Documentation explaining the agent's purpose, the required Python packages (`requests`, `google-auth`, `pyyaml`), and instructions on using the Python scripts.
 2.  **`config.yaml`**: The declarative configuration defining the agent's identity, system instructions (persona, context, rules, examples), and the dataset schema references.
 3.  **`dump_config.py`**: A Python script to download the live config to `config.yaml`.
 4.  **`update_config.py`**: A Python script to push the local `config.yaml` to GCP.
@@ -63,30 +63,48 @@ data_analytics_agent:
         - project_id: [PROJECT_ID]
           dataset_id: [DATASET_ID]
           table_id: [TABLE_1_NAME]
+        property_graph_references:
         - project_id: [PROJECT_ID]
           dataset_id: [DATASET_ID]
-          table_id: [TABLE_2_NAME]
+          property_graph_id: [GRAPH_NAME]
+          location_boundary: "" 
 ```
 
 ### 2. `dump_config.py` Template
 ```python
 import yaml
 import os
-from google.cloud import geminidataanalytics_v1beta as geminidataanalytics
+import requests
+import google.auth
+from google.auth.transport.requests import Request
 
 def dump_config(project_id, agent_id, location="global", output_file="config.yaml"):
-    client = geminidataanalytics.DataAgentServiceClient()
+    creds, _ = google.auth.default()
+    creds.refresh(Request())
+    
     name = f"projects/{project_id}/locations/{location}/dataAgents/{agent_id}"
+    url = f"https://geminidataanalytics.googleapis.com/v1beta/{name}"
+    headers = {"Authorization": f"Bearer {creds.token}", "Content-Type": "application/json"}
     
     print(f"Fetching configuration for agent: {name}")
-    request = geminidataanalytics.GetDataAgentRequest(name=name)
-    
     try:
-        response = client.get_data_agent(request=request)
-        config_dict = geminidataanalytics.DataAgent.to_dict(response)
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        config_dict = response.json()
+        
+        # Convert camelCase keys to snake_case for consistency with YAML structure
+        import re
+        def to_snake(d):
+            if isinstance(d, dict):
+                return {re.sub(r'(?<!^)(?=[A-Z])', '_', k).lower(): to_snake(v) for k, v in d.items()}
+            elif isinstance(d, list):
+                return [to_snake(i) for i in d]
+            return d
+            
+        snake_config = to_snake(config_dict)
         
         with open(output_file, 'w') as f:
-            yaml.dump(config_dict, f, sort_keys=False, indent=2)
+            yaml.dump(snake_config, f, sort_keys=False, indent=2)
         
         print(f"Configuration successfully dumped to {output_file}")
     except Exception as e:
@@ -106,13 +124,11 @@ if __name__ == "__main__":
 ```python
 import yaml
 import os
-import time
-from google.cloud import geminidataanalytics_v1beta as geminidataanalytics
-from google.protobuf import field_mask_pb2
+import requests
+import google.auth
+from google.auth.transport.requests import Request
 
 def update_config(yaml_file="config.yaml"):
-    client = geminidataanalytics.DataAgentServiceClient()
-    
     if not os.path.exists(yaml_file):
         print(f"File {yaml_file} not found.")
         return
@@ -127,36 +143,31 @@ def update_config(yaml_file="config.yaml"):
 
     print(f"Updating agent: {agent_name}")
 
-    agent_proto = geminidataanalytics.DataAgent.from_json(yaml.dump(config_dict))
+    # Convert snake_case back to camelCase for the REST API
+    import re
+    def to_camel(d):
+        if isinstance(d, dict):
+            return {re.sub(r'_([a-z])', lambda m: m.group(1).upper(), k): to_camel(v) for k, v in d.items()}
+        elif isinstance(d, list):
+            return [to_camel(i) for i in d]
+        return d
+        
+    camel_config = to_camel(config_dict)
+
+    creds, _ = google.auth.default()
+    creds.refresh(Request())
     
-    paths = [
-        "display_name",
-        "description",
-        "labels",
-        "data_analytics_agent.staging_context"
-    ]
-    
-    update_mask = field_mask_pb2.FieldMask(paths=paths)
-    
-    request = geminidataanalytics.UpdateDataAgentRequest(
-        data_agent=agent_proto,
-        update_mask=update_mask,
-    )
+    url = f"https://geminidataanalytics.googleapis.com/v1beta/{agent_name}?updateMask=displayName,description,labels,dataAnalyticsAgent.stagingContext"
+    headers = {"Authorization": f"Bearer {creds.token}", "Content-Type": "application/json"}
 
     try:
-        operation = client.update_data_agent(request=request)
-        print("Update in progress...")
-        
-        while not operation.done():
-            time.sleep(2)
-            print("...")
-
-        if operation.exception():
-            print("Operation failed:", operation.exception())
-        else:
-            print("Operation succeeded.")
+        response = requests.patch(url, headers=headers, json=camel_config)
+        response.raise_for_status()
+        print("Update succeeded.")
     except Exception as e:
         print(f"Error updating agent: {e}")
+        if hasattr(e, 'response') and e.response is not None:
+            print(e.response.text)
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
