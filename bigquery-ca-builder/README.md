@@ -1,4 +1,4 @@
-# BigQuery CA Agent Builder Skill (`bigquery-ca-agent-builder`)
+# BigQuery CA Builder Skill (`bigquery-ca-builder`)
 
 This skill provides automated guidance for generating configuration and deployment files for a BigQuery Conversational Analytics (BQCA) Agent using the `geminidataanalytics_v1beta` API.
 
