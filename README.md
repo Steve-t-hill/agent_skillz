@@ -11,7 +11,8 @@ To use these skills with **Gemini CLI** or **Antigravity**, copy the desired ski
 
 ```bash
 cp -r bigquery-graphql ~/.agents/skills/
-cp -r bigquery-ca-agent-builder ~/.agents/skills/
+cp -r bigquery-ca-builder ~/.agents/skills/
+cp -r business-glossary-builder ~/.agents/skills/
 ```
 
 ## Available Skills
@@ -25,7 +26,7 @@ This skill provides expert guidance and an automated agent protocol for transfor
 - **DDL Generation:** Generates optimized `CREATE PROPERTY GRAPH` statements without data movement.
 - **GQL Optimization:** Writes high-performance Graph Query Language (GQL) statements that handle data skew and overcounting.
 
-### [BigQuery CA Agent Builder (`bigquery-ca-agent-builder`)](./bigquery-ca-agent-builder/SKILL.md)
+### [BigQuery CA Builder (`bigquery-ca-builder`)](./bigquery-ca-builder/README.md)
 This skill guides the agent in automatically generating configuration and deployment files for a BigQuery Conversational Analytics (BQCA) Agent using the `geminidataanalytics_v1beta` API.
 
 **Key Features:**
@@ -34,9 +35,18 @@ This skill guides the agent in automatically generating configuration and deploy
 - **Schema Reference Mapping:** Automatically maps BigQuery tables and datasets into the declarative configuration.
 - **Deployment-Ready Output:** Provides the necessary Python scripts to pull and push configurations to Google Cloud.
 
+### [Knowledge Catalog Business Glossary Builder (`business-glossary-builder`)](./business-glossary-builder/README.md)
+This skill provides expert guidance and an automated agent protocol for managing Google Cloud Knowledge Catalog Business Glossaries, categories, and terms, and linking terms to physical data assets (e.g., BigQuery tables and columns).
+
+**Key Features:**
+- **Ontology & Glossary Management:** Programmatically creates and manages glossaries, categories, and terms with structured metadata.
+- **Lineage & Asset Mapping:** Facilitates technical mappings by linking business terms directly to physical BigQuery tables and columns.
+- **CLI Utility Integration:** Equips the agent with the `glossary_manager.py` CLI tool to interact with the Knowledge Catalog REST API.
+- **Semantic Audit & Relationships:** Helps identify synonyms and related terms to create strong linkages between business concepts.
+
 ---
 
 ## Usage
 
-Once installed in `~/.agents/skills/`, these skills can be activated within a session using the `activate_skill` tool by referencing their name (e.g., `bigquery-graphql` or `bigquery-ca-agent-builder`).
+Once installed in `~/.agents/skills/`, these skills can be activated within a session using the `activate_skill` tool by referencing their name (e.g., `bigquery-graphql`, `bigquery-ca-builder`, or `business-glossary-builder`).
 

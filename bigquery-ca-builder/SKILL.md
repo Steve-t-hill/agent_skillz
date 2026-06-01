@@ -1,4 +1,19 @@
-# BigQuery Conversational Analytics (BQCA) Agent Builder
+---
+name: bigquery-ca-builder
+description: |
+  Expert guidance and automated agent protocol for generating configuration and deployment artifacts for BigQuery Conversational Analytics (BQCA) Agents.
+  This skill automates the creation of 'config.yaml', system instructions, and Python-based synchronization scripts to enable NL2SQL and GQL capabilities against existing datasets and Property Graphs.
+  Use this skill when:
+    1. Building a new conversational analytics agent from scratch.
+    2. Generating or updating system instructions for an NL2SQL agent.
+    3. Scaffolding deployment scripts for BQCA lifecycle management.
+license: Apache-2.0
+metadata:
+  version: v2
+  publisher: Steve Thill
+---
+
+# BigQuery Conversational Analytics (BQCA) Agent Scaffolding
 
 ## TL;DR
 This skill guides the agent in automatically generating configuration and deployment files for a BigQuery Conversational Analytics (BQCA) Agent using the `geminidataanalytics_v1beta` API. 
