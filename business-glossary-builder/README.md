@@ -19,10 +19,20 @@ This skill provides expert guidance, automated workflows, and a specialized Pyth
 ## Common Use Cases
 
 * **Cold Start Scaffolding**: Bootstrap a new business glossary by extracting schema metadata from physical technical assets (like BigQuery tables) and auto-generating initial categories and terms based on technical descriptions and naming patterns.
-* **Automated Glossary Import**: Import legacy or pre-existing business terms from diverse external formats (such as CSV or Markdown) and programmatically create and link them in Google Cloud Knowledge Catalog.
+  * **Sample Prompt**:
+    > "Analyze the dataset `my-project.retail_data` and bootstrap a new business glossary `retail-glossary` in `global`. Extract all table structures, infer the conceptual business categories/terms, and generate a rich scaffolding mapped to the physical column schema."
+* **Automated Glossary Import**: Import legacy or pre-existing business terms from diverse external formats (such as CSV or Markdown) and programmatically create and link them into the business glossary `retail-glossary` in global.
+  * **Sample Prompt**:
+    > "I have a CSV file at `./raw_terms.csv` containing columns for term name, definition, and steward. Please parse this file and programmatically create all matching terms inside the existing `retail-glossary` glossary in `global`."
 * **Bulk Metadata Operations**: Perform bulk operations against large business catalogs, such as mass-assigning data stewards, aligning contact emails, or establishing bulk related-term linkages in a single run.
+  * **Sample Prompt**:
+    > "Assign `data-governance-team@company.com` as the data steward for all terms under the 'Finance' category in the `retail-glossary` in `global`."
 * **Governance Gap & Audit Scanning**: Programmatically scan BigQuery datasets to identify undocumented fields or columns that lack business terms, and find terms missing required stewards or definitions.
+  * **Sample Prompt**:
+    > "Scan our `my-project.retail_data` dataset in BigQuery and compare it against the `retail-glossary` in `global`. Generate a report listing all columns that do not have an attached glossary term, and identify any terms that are missing a description or a designated data steward."
 * **Multi-Glossary Consolidation**: Reconcile and merge separate glossaries from different departments or legacy systems, programmatically identifying synonym relationships and mapping shared definitions.
+  * **Sample Prompt**:
+    > "We have two distinct glossaries: `retail-sales-glossary` and `online-sales-glossary`. Analyze both to identify overlapping concepts, create synonym links for matches (like 'client' and 'purchaser'), and generate a consolidation proposal to merge them into a single enterprise glossary."
 
 
 ---
