@@ -16,6 +16,17 @@ This skill provides expert guidance, automated workflows, and a specialized Pyth
 
 ---
 
+## Common Use Cases
+
+* **Cold Start Scaffolding**: Bootstrap a new business glossary by extracting schema metadata from physical technical assets (like BigQuery tables) and auto-generating initial categories and terms based on technical descriptions and naming patterns.
+* **Automated Glossary Import**: Import legacy or pre-existing business terms from diverse external formats (such as CSV or Markdown) and programmatically create and link them in Google Cloud Knowledge Catalog.
+* **Bulk Metadata Operations**: Perform bulk operations against large business catalogs, such as mass-assigning data stewards, aligning contact emails, or establishing bulk related-term linkages in a single run.
+* **Governance Gap & Audit Scanning**: Programmatically scan BigQuery datasets to identify undocumented fields or columns that lack business terms, and find terms missing required stewards or definitions.
+* **Multi-Glossary Consolidation**: Reconcile and merge separate glossaries from different departments or legacy systems, programmatically identifying synonym relationships and mapping shared definitions.
+
+
+---
+
 ## Installation
 
 To install this skill, copy this directory to your global agents skills folder:
