@@ -10,12 +10,20 @@ Use this skill when you need to "build a conversational analytics agent", "creat
 
 ---
 
-## Use Cases
+## Common Use Cases
 
-Equip your agent with this skill when you need to automate:
-1. **Conversational Agent Generation:** Bootstrapping a complete, deployable NL2SQL conversational agent in Google Cloud.
-2. **Configuration Scaffolding:** Structuring the core persona, data context, and query generation rules (`system_instruction`) for BQCA.
-3. **Schema Mapping:** Automatically binding BigQuery table references, datasets, and **Property Graphs** to the agent's declarative definition.
+* **Greenfield Conversational Agent Setup**: Bootstrap a complete, deployable NL2SQL conversational agent in Google Cloud from scratch. The skill generates the required directory, declarative `config.yaml`, retail or custom business persona, precise dataset/property graph schema mappings, and helper python deployment scripts.
+  * **Sample Prompt**:
+    > "Analyze the dataset `my-project.retail_sales` and build a complete BQCA agent config named `retail-analyst`. Map the schemas of all active tables, define a retail business persona, set up project `my-project`, and write the deployment python scripts to a new directory `bqca_retail_agent`."
+* **Property Graph (GQL) Querying Integration**: Enhance a conversational agent with Graph Query Language (GQL) rules and map native BigQuery Labeled Property Graphs directly into the agent's declarative datasource definition.
+  * **Sample Prompt**:
+    > "I want to set up a BQCA agent for `my-project.social_network`. We have a Property Graph `user_connections_graph` in addition to standard tables. Generate a configuration that supports GQL query generation, details graph matching syntax in the rules, and registers the property graph reference."
+* **Persona Tuning & Metric Hardening**: Fine-tune an existing agent's system instructions to enforce specific KPI definitions (such as Gross Margin or Customer Lifetime Value) and query generation constraints, preventing incorrect SQL generation.
+  * **Sample Prompt**:
+    > "In our current BQCA agent directory at `./bqca_retail_agent`, update the `config.yaml` system instructions to define standard KPI metrics. Add a query generation rule that Gross Margin is `SUM(margin)/SUM(revenue)` and that all generated SQL must use standard date filter boundaries."
+* **Agent Configuration Synchronization**: Programmatically download a live GCP BQCA agent configuration to a local `config.yaml` file for local validation, local version control tracking, or environment migration.
+  * **Sample Prompt**:
+    > "Extract the live configuration from project `my-project` for data agent `agent_12345` using the `dump_config.py` script and save it locally to `config.yaml` so that we can inspect the live system instructions and commit them to git."
 
 ---
 

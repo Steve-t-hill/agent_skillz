@@ -10,12 +10,20 @@ The most robust strategy for building BigQuery LPGs combines hard schema boundar
 
 ---
 
-## Use Cases
+## Common Use Cases
 
-Equip your agent with this skill when you need to automate:
-1. **Relational-to-Graph Translation (99% of cases):** Analyze an existing BigQuery dataset, infer the logical graph topology (nodes, edges, properties), and generate the DDL to overlay a Property Graph on top of active tables.
-2. **Unstructured Data Ingestion (1% of cases):** Ingest unstructured documents (PDF manuals, data sheets) from GCS, parse layouts via Document AI, extract entities using Gemini (`AI.GENERATE`) with strict JSON schemas, and stitch them into a property graph.
-3. **High-Performance GQL Generation:** Write optimized Graph Query Language (GQL) statements that proactively handle data skew, cap super nodes, and utilize graph measures via `GRAPH_EXPAND` and `AGG()`.
+* **Relational-to-Graph Translation**: Analyze an active BigQuery dataset, automatically infer optimized graph topologies (identifying node candidates, edge promotions, and low-cardinality properties), and generate the exact `CREATE PROPERTY GRAPH` DDL statement without duplicating underlying data.
+  * **Sample Prompt**:
+    > "Analyze our relational ecommerce dataset `my-project.ecom_data` in the `us` region. Propose an optimized graph topology (mapping nodes, edges, and properties), and generate the complete `CREATE OR REPLACE PROPERTY GRAPH` DDL statement."
+* **Unstructured Document Ingestion to Graph**: Parse unstructured documents (e.g., product sheets, user manuals) in a GCS bucket, extract entities and semantic relations via Gemini `AI.GENERATE` with strict JSON outputs, and construct the SQL pipelines to load them into a property graph.
+  * **Sample Prompt**:
+    > "We have unstructured PDF technical sheets stored at `gs://my-bucket/datasheets/`. Parse them, use Gemini to extract specifications, raw materials, and vendor linkages as JSON, and write the SQL pipeline to ingest them into our BigQuery Property Graph."
+* **High-Performance GQL Generation**: Formulate clean, highly optimized Graph Query Language (GQL) statements against a BigQuery Labeled Property Graph that proactively remediate common engine crashes (such as fact table double-counting via `MEASURE()`) and navigate temporal node segments.
+  * **Sample Prompt**:
+    > "Generate a GQL query to retrieve the path of product recommendations starting from a Customer node to a Product node, passing through segment groups. Apply the `MEASURE` keyword to correctly aggregate purchase values and handle super-node segments."
+* **Enterprise Fact Table Reification**: Reify complex multi-dimensional relational fact tables containing three or more foreign keys into dedicated Event Nodes with radiating directional edges, resolving navigation limits in property graphs.
+  * **Sample Prompt**:
+    > "Our sales fact table `my-project.retail_data.fact_sales` has links to Customer, Store, Date, and Product. Generate the Property Graph DDL to reify this table into an Event Node called `sales_event` with radiating directional edges to each dimension node."
 
 ---
 
