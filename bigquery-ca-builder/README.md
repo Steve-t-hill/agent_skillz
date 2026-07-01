@@ -21,6 +21,9 @@ Use this skill when you need to "build a conversational analytics agent", "creat
 * **Persona Tuning & Metric Hardening**: Fine-tune an existing agent's system instructions to enforce specific KPI definitions (such as Gross Margin or Customer Lifetime Value) and query generation constraints, preventing incorrect SQL generation.
   * **Sample Prompt**:
     > "In our current BQCA agent directory at `./bqca_retail_agent`, update the `config.yaml` system instructions to define standard KPI metrics. Add a query generation rule that Gross Margin is `SUM(margin)/SUM(revenue)` and that all generated SQL must use standard date filter boundaries."
+* **Agent-Level Business Glossaries & Structured Metadata**: Define domain jargon, business terms, column aggregations, and table join relationships directly in the agent's configuration.
+  * **Sample Prompt**:
+    > "Configure agent-level glossaries for `retail-analyst` using `glossary_terms` with `display_name` 'Gross Margin' and `description` 'SUM(profit)/SUM(sales)'. Define table field aggregations for `order_total` (SUM, AVG) and a join relationship between `orders` and `customers`."
 * **Agent Configuration Synchronization**: Programmatically download a live GCP BQCA agent configuration to a local `config.yaml` file for local validation, local version control tracking, or environment migration.
   * **Sample Prompt**:
     > "Extract the live configuration from project `my-project` for data agent `agent_12345` using the `dump_config.py` script and save it locally to `config.yaml` so that we can inspect the live system instructions and commit them to git."
@@ -32,15 +35,15 @@ Use this skill when you need to "build a conversational analytics agent", "creat
 When invoked, the agent MUST generate a directory (e.g., `bqca_[name]_agent`) containing the following 4 files:
 
 1. **`README.md`**: Documentation explaining the agent's purpose, the required Python packages (`requests`, `google-auth`, `pyyaml`), and instructions on using the Python scripts.
-2. **`config.yaml`**: The declarative configuration defining the agent's identity, system instructions (persona, context, rules, examples), and the dataset schema references.
+2. **`config.yaml`**: The declarative configuration defining the agent's identity, system instructions (persona, context, rules, examples), agent-level glossaries, table & field metadata, join relationships, and dataset schema references.
 3. **`dump_config.py`**: A Python script to download the live config to `config.yaml`.
 4. **`update_config.py`**: A Python script to push the local `config.yaml` to GCP.
 
 ---
 
-## System Instructions (The Heart of `config.yaml`)
+## System Instructions & Agent-Level Glossaries (The Heart of `config.yaml`)
 
-The `system_instruction` block inside `config.yaml` (specifically within `data_analytics_agent.staging_context`) must follow this exact structured markdown format:
+The `staging_context` block inside `config.yaml` (under `data_analytics_agent`) supports both unstructured markdown instructions (`system_instruction`) and structured metadata blocks (`glossaries`, `tables`, `relationships`, `additional_descriptions`):
 
 ```markdown
 1. Persona & Role
@@ -66,6 +69,12 @@ You have access to [X] core tables in the [Dataset] dataset.
 * [Example 2: Short description and SQL/GQL snippet]
 ```
 
+### Structured Context & Glossaries
+* **`glossary_terms`**: Array of terms (`display_name`, `description`) directly rendered in the BigQuery Console UI's Glossary section.
+* **`tables`**: Array of tables with column `fields` and `aggregations`.
+* **`relationships`**: Array of joins (`name`, `relationship_type`, `join_type`, `left_table`, `right_table`, `relationship_columns`).
+* **`additional_descriptions`**: Array of general context strings (`text`).
+
 ---
 
 ## Template Files
@@ -83,6 +92,31 @@ data_analytics_agent:
   staging_context:
     system_instruction: |
       [INSERT SYSTEM INSTRUCTIONS HERE FOLLOWING THE FORMAT ABOVE]
+    glossary_terms:
+      - display_name: "[BUSINESS_TERM_OR_KPI]"
+        description: "[DEFINITION_OR_FORMULA_E_G_SUM_PROFIT_DIVIDED_BY_SUM_SALES]"
+    tables:
+      - table:
+          name: "[PROJECT_ID].[DATASET_ID].[TABLE_1_NAME]"
+          fields:
+            - field:
+                name: "[COLUMN_NAME]"
+                aggregations:
+                  - "SUM"
+                  - "AVG"
+    relationships:
+      - relationship:
+          name: "[RELATIONSHIP_NAME_E_G_ORDERS_TO_CUSTOMERS]"
+          description: "[DESCRIPTION_OF_JOIN]"
+          relationship_type: "[one-to-one|one-to-many|many-to-one|many-to-many]"
+          join_type: "[inner|outer|left|right|full]"
+          left_table: "[PROJECT_ID].[DATASET_ID].[TABLE_1_NAME]"
+          right_table: "[PROJECT_ID].[DATASET_ID].[TABLE_2_NAME]"
+          relationship_columns:
+            - left_column: "[JOIN_COLUMN_1]"
+              right_column: "[JOIN_COLUMN_2]"
+    additional_descriptions:
+      - text: "[ADDITIONAL_GENERAL_INSTRUCTIONS_OR_BUSINESS_RULES]"
     options:
       datasource:
         big_query_max_billed_bytes: '20000000000'
@@ -96,7 +130,7 @@ data_analytics_agent:
         - project_id: [PROJECT_ID]
           dataset_id: [DATASET_ID]
           property_graph_id: [GRAPH_NAME]
-          location_boundary: "" 
+          location_boundary: ""
 ```
 
 ### 2. `dump_config.py` Template

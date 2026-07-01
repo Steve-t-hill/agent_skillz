@@ -2,10 +2,10 @@
 name: bigquery-ca-builder
 description: |
   Expert guidance and automated agent protocol for generating configuration and deployment artifacts for BigQuery Conversational Analytics (BQCA) Agents.
-  This skill automates the creation of 'config.yaml', system instructions, and Python-based synchronization scripts to enable NL2SQL and GQL capabilities against existing datasets and Property Graphs.
+  This skill automates the creation of 'config.yaml', system instructions, agent-level glossaries, table schema metadata, join relationships, and Python-based synchronization scripts to enable NL2SQL and GQL capabilities against existing datasets and Property Graphs.
   Use this skill when:
     1. Building a new conversational analytics agent from scratch.
-    2. Generating or updating system instructions for an NL2SQL agent.
+    2. Generating or updating system instructions, agent-level glossaries, or table relationships for an NL2SQL agent.
     3. Scaffolding deployment scripts for BQCA lifecycle management.
 license: Apache-2.0
 metadata:
@@ -18,19 +18,20 @@ metadata:
 ## TL;DR
 This skill guides the agent in automatically generating configuration and deployment files for a BigQuery Conversational Analytics (BQCA) Agent using the `geminidataanalytics_v1beta` API. 
 
-Use this skill when a user asks to "build a conversational analytics agent", "create a BQCA agent", or "generate a config.yaml for an NL2SQL agent" against an existing BigQuery dataset or Property Graph.
+Use this skill when a user asks to "build a conversational analytics agent", "create a BQCA agent", "add agent-level glossary terms", or "generate a config.yaml for an NL2SQL agent" against an existing BigQuery dataset or Property Graph.
 
 ## The Output Artifacts
 When invoked, the agent MUST generate a directory (e.g., `bqca_[name]_agent`) containing the following 4 files:
 
 1.  **`README.md`**: Documentation explaining the agent's purpose, the required Python packages (`requests`, `google-auth`, `pyyaml`), and instructions on using the Python scripts.
-2.  **`config.yaml`**: The declarative configuration defining the agent's identity, system instructions (persona, context, rules, examples), and the dataset schema references.
+2.  **`config.yaml`**: The declarative configuration defining the agent's identity, system instructions (persona, context, rules, examples), agent-level glossaries, table & field metadata, join relationships, and dataset schema references.
 3.  **`dump_config.py`**: A Python script to download the live config to `config.yaml`.
 4.  **`update_config.py`**: A Python script to push the local `config.yaml` to GCP.
 
-## System Instructions (The Heart of `config.yaml`)
-The `system_instruction` block inside `config.yaml` (specifically within `data_analytics_agent.staging_context`) must follow this exact structured markdown format:
+## System Instructions & Agent-Level Glossaries (The Heart of `config.yaml`)
+The `staging_context` block inside `config.yaml` (under `data_analytics_agent`) supports both unstructured markdown instructions (`system_instruction`) and structured metadata blocks (`glossaries`, `tables`, `relationships`, `additional_descriptions`):
 
+### 1. `system_instruction` Markdown Format
 ```markdown
 1. Persona & Role
 You are the Senior [Domain] Data Analyst for the {your-gcp-project} project. Your role is to translate natural language questions into precise GoogleSQL/GQL queries against the [Dataset] dataset.
@@ -55,6 +56,14 @@ You have access to [X] core tables in the [Dataset] dataset.
 * [Example 2: Short description and SQL/GQL snippet]
 ```
 
+### 2. Agent-Level Glossaries & Structured Context
+In addition to `system_instruction`, agent-specific business terms, column aggregations, table relationships, and supplemental rules can be defined directly in the configuration:
+
+* **Agent Glossaries (`glossary_terms`)**: Defines business terms and KPIs specific to this agent. In the REST API (`geminidataanalytics_v1beta`), `staging_context.glossary_terms` (`glossaryTerms`) directly populates the dedicated **Glossary (X)** UI section in the BigQuery Console Agent Editor. Each entry must contain `display_name` and `description`.
+* **Table & Field Specifications (`tables`)**: Defines default or common column aggregations (e.g., `SUM`, `AVG`).
+* **Table Relationships (`relationships`)**: Defines join relationships between tables including join types (`inner`, `left`, etc.), cardinalities (`one-to-many`, etc.), and join columns.
+* **Additional Descriptions (`additional_descriptions`)**: Captures general operational rules or context not covered elsewhere.
+
 ## Template Files
 Use the following templates to generate the required files. Replace placeholders (like `[PROJECT_ID]`, `[AGENT_ID]`, `[DATASET_ID]`) with actual values based on the user's context.
 
@@ -69,6 +78,31 @@ data_analytics_agent:
   staging_context:
     system_instruction: |
       [INSERT SYSTEM INSTRUCTIONS HERE FOLLOWING THE FORMAT ABOVE]
+    glossary_terms:
+      - display_name: "[BUSINESS_TERM_OR_KPI]"
+        description: "[DEFINITION_OR_FORMULA_E_G_SUM_PROFIT_DIVIDED_BY_SUM_SALES]"
+    tables:
+      - table:
+          name: "[PROJECT_ID].[DATASET_ID].[TABLE_1_NAME]"
+          fields:
+            - field:
+                name: "[COLUMN_NAME]"
+                aggregations:
+                  - "SUM"
+                  - "AVG"
+    relationships:
+      - relationship:
+          name: "[RELATIONSHIP_NAME_E_G_ORDERS_TO_CUSTOMERS]"
+          description: "[DESCRIPTION_OF_JOIN]"
+          relationship_type: "[one-to-one|one-to-many|many-to-one|many-to-many]"
+          join_type: "[inner|outer|left|right|full]"
+          left_table: "[PROJECT_ID].[DATASET_ID].[TABLE_1_NAME]"
+          right_table: "[PROJECT_ID].[DATASET_ID].[TABLE_2_NAME]"
+          relationship_columns:
+            - left_column: "[JOIN_COLUMN_1]"
+              right_column: "[JOIN_COLUMN_2]"
+    additional_descriptions:
+      - text: "[ADDITIONAL_GENERAL_INSTRUCTIONS_OR_BUSINESS_RULES]"
     options:
       datasource:
         big_query_max_billed_bytes: '20000000000'
@@ -82,7 +116,7 @@ data_analytics_agent:
         - project_id: [PROJECT_ID]
           dataset_id: [DATASET_ID]
           property_graph_id: [GRAPH_NAME]
-          location_boundary: "" 
+          location_boundary: ""
 ```
 
 ### 2. `dump_config.py` Template

@@ -31,7 +31,7 @@ This skill guides the agent in automatically generating configuration and deploy
 
 **Key Features:**
 - **Automated Artifact Generation:** Generates `config.yaml`, `README.md`, `dump_config.py`, and `update_config.py`.
-- **System Instruction Orchestration:** Crafts the core persona, data context, and query generation rules for the BQCA agent.
+- **System Instruction & Agent Glossary Orchestration:** Crafts the core persona, data context, query generation rules, agent-level business glossaries, field aggregations, and join relationships.
 - **Schema Reference Mapping:** Automatically maps BigQuery tables and datasets into the declarative configuration.
 - **Deployment-Ready Output:** Provides the necessary Python scripts to pull and push configurations to Google Cloud.
 
