@@ -1,5 +1,5 @@
 ---
-name: business-glossary-builder
+name: kc-business-glossary-builder
 description: |
   Expert guidance and automated agent protocol for managing Google Cloud Knowledge Catalog Business Glossaries.
   This skill provides the ability to create, update, and manage glossaries, categories, and terms, as well as link terms to data assets and columns.

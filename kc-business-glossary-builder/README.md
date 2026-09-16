@@ -26,7 +26,7 @@ This skill provides expert guidance, automated workflows, and a specialized Pyth
     > "I have a CSV file at `./raw_terms.csv` containing columns for term name, definition, and steward. Please parse this file and programmatically create all matching terms inside the existing `retail-glossary` glossary in `global`."
 * **Bulk Metadata Operations**: Perform bulk operations against large business catalogs, such as mass-assigning data stewards, aligning contact emails, or establishing bulk related-term linkages in a single run.
   * **Sample Prompt**:
-    > "Assign `data-governance-team@company.com` as the data steward for all terms under the 'Finance' category in the `retail-glossary` in `global`."
+    > "Assign `data-governance-team@example.com` as the data steward for all terms under the 'Finance' category in the `retail-glossary` in `global`."
 * **Governance Gap & Audit Scanning**: Programmatically scan BigQuery datasets to identify undocumented fields or columns that lack business terms, and find terms missing required stewards or definitions.
   * **Sample Prompt**:
     > "Scan our `my-project.retail_data` dataset in BigQuery and compare it against the `retail-glossary` in `global`. Generate a report listing all columns that do not have an attached glossary term, and identify any terms that are missing a description or a designated data steward."
@@ -42,14 +42,14 @@ This skill provides expert guidance, automated workflows, and a specialized Pyth
 To install this skill, copy this directory to your global agents skills folder:
 
 ```bash
-cp -r business-glossary-builder ~/.agents/skills/
+cp -r kc-business-glossary-builder ~/.agents/skills/
 ```
 
 ### Activate the Skill
 Activate the skill within an Antigravity or Antigravity CLI session:
 
 ```text
-activate_skill business-glossary-builder
+activate_skill kc-business-glossary-builder
 ```
 
 Once activated, the agent gains access to the expert workflows documented in `SKILL.md` and can invoke `glossary_manager.py` via command-line tools.
